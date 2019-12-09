@@ -5,7 +5,10 @@ import numpy as np
 def get_patch(input_array, i, j, filter_width, filter_height, stride):
     start_i = i * stride
     start_j = j * stride
-    input_array_conv = input_array[:, start_i : start_i + filter_height, start_j : start_j + filter_width]
+    if input_array.ndim == 3:
+        input_array_conv = input_array[:, start_i : start_i + filter_height, start_j : start_j + filter_width]
+    else:
+        input_array_conv = input_array[start_i : start_i + filter_height, start_j : start_j + filter_width]
     return input_array_conv
 
 
@@ -13,8 +16,8 @@ def get_patch(input_array, i, j, filter_width, filter_height, stride):
 def conv(input_array, filter_array, output_array, stride, bias):
     output_width = output_array.shape[1]
     output_height = output_array.shape[0]
-    filter_width = filter_array.shape[2]
-    filter_height = filter_array.shape[1]
+    filter_width = filter_array.shape[-1]
+    filter_height = filter_array.shape[-2]
     for i in range(output_height):
         for j in range(output_width):
             output_array[i][j] = (get_patch(input_array, i, j, filter_width, filter_height, stride) * filter_array).sum() + bias
@@ -74,9 +77,25 @@ class ConvLayer(object):
     # gradients are stored in weights_grad and bias_grad of Filter object
     def backward(self, sensitivity_array):
         # sensitivity_array: delta array of the current layer
+        padded_array = padding(sensitivity_array, 1)
+        self.delta_array = np.zeros((self.channel_number, self.input_height, self.input_width))
+        for f in range(self.filter_number):
+            filter = self.filters[f]
+            flipped_weights = self.flip180_array(filter.get_weights())
+            delta_array = np.zeros((self.channel_number, self.input_height, self.input_width))
+            for d in range(delta_array.shape[0]):
+                conv(padded_array[f], flipped_weights[d], delta_array[d], 1, 0)
+            self.delta_array += delta_array
+        derivative_array = np.array(self.input_array)
+        element_wise_op(derivative_array, self.activator.backward)
+        self.delta_array *= derivative_array
+
+
+    def backward_expanded(self, sensitivity_array):
+        # sensitivity_array: delta array of the current layer
         expanded_array = self.expand_sensitivity_map(sensitivity_array)
         expanded_width = expanded_array.shape[2]
-        zp = (self.input_width + self.filter_width - 1 - expanded_width) / 2
+        zp = (self.input_width + self.filter_width - 1 - expanded_width) // 2
         padded_array = padding(expanded_array, zp)
         self.delta_array = np.zeros((self.channel_number, self.input_height, self.input_width))
         for f in range(self.filter_number):
@@ -99,12 +118,21 @@ class ConvLayer(object):
 
     # calculate the gradient of weights and biases
     def bp_gradient(self, padded_input_array, sensitivity_array):
+        expanded_array = sensitivity_array
+        for f in range(self.filter_number):
+            filter = self.filters[f]
+            for d in range(filter.weights.shape[0]):
+                conv(padded_input_array[d], expanded_array[f], filter.weights_grad[d], 1, 0)
+            filter.bias_grad = expanded_array[f].sum()
+
+    def bp_gradient_expanded(self, padded_input_array, sensitivity_array):
         expanded_array = self.expand_sensitivity_map(sensitivity_array)
         for f in range(self.filter_number):
             filter = self.filters[f]
             for d in range(filter.weights.shape[0]):
                 conv(padded_input_array[d], expanded_array[f], filter.weights_grad[d], 1, 0)
             filter.bias_grad = expanded_array[f].sum()
+
 
     # expand delta array to fit the stride operation
     def expand_sensitivity_map(self, sensitivity_array):
