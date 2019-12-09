@@ -9,42 +9,42 @@ class CNN(object):
         self.cost_function = cost_function
         self.predict_output_list = []
         self.conv1 = ConvLayer(input_width, input_height, channel_number,
-                          3, 3, 4, 1, 1, ReluActivator(), learning_rate)
+                          3, 3, 8, 1, 1, ReluActivator(), learning_rate)
 
         # self.conv2 = ConvLayer(input_width, input_height, 64,
         #                   3, 3, 64, input_width // 2 + 1, 2, ReluActivator(), learning_rate)
 
-        self.conv2 = ConvLayer(input_width, input_height, 4,
-                          3, 3, 4, 1, 1, ReluActivator(), learning_rate)
-
-        self.conv3 = ConvLayer(input_width, input_height, 4,
+        self.conv2 = ConvLayer(input_width, input_height, 8,
                           3, 3, 8, 1, 1, ReluActivator(), learning_rate)
 
-        self.conv4 = ConvLayer(input_width, input_height, 8,
-                          3, 3, 8, 1, 1, ReluActivator(), learning_rate)
-
-        self.conv5 = ConvLayer(input_width, input_height, 8,
+        self.conv3 = ConvLayer(input_width, input_height, 8,
                           3, 3, 16, 1, 1, ReluActivator(), learning_rate)
 
-        self.conv6 = ConvLayer(input_width, input_height, 16,
+        self.conv4 = ConvLayer(input_width, input_height, 16,
                           3, 3, 16, 1, 1, ReluActivator(), learning_rate)
 
-        self.conv7 = ConvLayer(input_width, input_height, 16,
+        self.conv5 = ConvLayer(input_width, input_height, 16,
                           3, 3, 32, 1, 1, ReluActivator(), learning_rate)
 
-        self.conv8 = ConvLayer(input_width, input_height, 32,
+        self.conv6 = ConvLayer(input_width, input_height, 32,
+                          3, 3, 32, 1, 1, ReluActivator(), learning_rate)
+
+        self.conv7 = ConvLayer(input_width, input_height, 32,
+                          3, 3, 64, 1, 1, ReluActivator(), learning_rate)
+
+        self.conv8 = ConvLayer(input_width, input_height, 64,
+                          3, 3, 32, 1, 1, ReluActivator(), learning_rate)
+
+        self.conv9 = ConvLayer(input_width, input_height, 32,
                           3, 3, 16, 1, 1, ReluActivator(), learning_rate)
 
-        self.conv9 = ConvLayer(input_width, input_height, 16,
+        self.conv10 = ConvLayer(input_width, input_height, 16,
                           3, 3, 8, 1, 1, ReluActivator(), learning_rate)
 
-        self.conv10 = ConvLayer(input_width, input_height, 8,
+        self.conv11 = ConvLayer(input_width, input_height, 8,
                           3, 3, 4, 1, 1, ReluActivator(), learning_rate)
 
-        self.conv11 = ConvLayer(input_width, input_height, 4,
-                          3, 3, 2, 1, 1, ReluActivator(), learning_rate)
-
-        self.conv12 = ConvLayer(input_width, input_height, 2,
+        self.conv12 = ConvLayer(input_width, input_height, 4,
                           3, 3, 2, 1, 1, ReluActivator(), learning_rate)
 
 
@@ -150,4 +150,29 @@ class CNN(object):
         self.conv12.update(self.conv11_output_array, delta_array)
 
 
+    def output(self, input_array):
+        self.conv1.forward(input_array)
 
+        self.conv2.forward(self.conv1.output_array)
+
+        self.conv3.forward(self.conv2.output_array)
+
+        self.conv4.forward(self.conv3.output_array)
+
+        self.conv5.forward(self.conv4.output_array)
+
+        self.conv6.forward(self.conv5.output_array)
+
+        self.conv7.forward(self.conv6.output_array)
+
+        self.conv8.forward(self.conv7.output_array)
+
+        self.conv9.forward(self.conv8.output_array)
+
+        self.conv10.forward(self.conv9.output_array)
+
+        self.conv11.forward(self.conv10.output_array)
+
+        self.conv12.forward(self.conv11_output_array)
+
+        return self.conv12.output_array
