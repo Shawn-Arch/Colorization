@@ -17,8 +17,8 @@ for path in img_path:
     transpose_im = im_array.swapaxes(1,2).swapaxes(0,1)
     pic_list.append(transpose_im)
 
-epoch = 1000
-batch_size = 3
+epoch = 50
+batch_size = 12
 n_batch = int(math.ceil(len(pic_list) / batch_size))
 
 
