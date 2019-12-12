@@ -94,24 +94,3 @@ for i in range(0, 100):
     pic_old.save('./output/new'+str(i)+'.jpg')
 
 
-for i in range(0, 100):
-    test_pic = pic_list[np.random.randint(0,len(pic_list))]
-    # test_pic = pic_list[0]
-    # predict_output =  model.output(test_pic[:1,:,:]) * 128
-    # output = np.zeros(test_pic.shape)
-    # output[:1,:,:] = test_pic[:1,:,:]
-    # output[1:,:,:] = predict_output
-
-    test_pic = test_pic.swapaxes(0,1).swapaxes(1,2)
-    # output = output.swapaxes(0,1).swapaxes(1,2)
-
-    test_pic_rgb = color.lab2rgb(test_pic) * 255
-    # output_rgb = color.lab2rgb(output) * 255
-
-    pic_old = Image.fromarray(np.uint8(test_pic_rgb))
-    # pic_new = Image.fromarray(np.uint8(output_rgb))
-
-    pic_old.save('./output/old'+str(i)+'.jpg')
-    # pic_new.save('new'+str(i)+'.jpg')
-
-
