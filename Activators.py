@@ -1,19 +1,21 @@
-#codinf:utf-8
-'''
-Copyright by huxiaoman 2017.11.21
-activators.py: some common activation functions, relu, sigmoid, tanh included
-'''
-
 import numpy as np
 
+
+class NoneActivator(object):
+    def forward(self, weighted_input):
+        #return weighted_input
+        return weighted_input
+
+    def backward(self, output):
+        return 1
 
 class ReluActivator(object):
     def forward(self, weighted_input):
         #return weighted_input
-        return max(0, weighted_input)
+        return weighted_input if weighted_input > 0 else weighted_input * 0.25
 
     def backward(self, output):
-        return 1 if output > 0 else 0
+        return 1 if output > 0 else 0.25
 
 
 class IdentityActivator(object):
