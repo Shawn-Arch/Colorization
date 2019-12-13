@@ -10,7 +10,9 @@ data_dict = unpickle('./cifar-10-batches-py/data_batch_1')
 data_list = data_dict[b'data']
 array_list = []
 
-for i in range(0,len(data_list)):
+pic_num = 1000
+
+for i in range(0,pic_num):
     pic = data_list[i]
     new_array = np.zeros((3,32,32))
     array_list.append(new_array)
