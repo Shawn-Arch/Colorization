@@ -10,7 +10,7 @@ data_dict = unpickle('./cifar-10-batches-py/data_batch_1')
 data_list = data_dict[b'data']
 array_list = []
 
-pic_num = 1000
+pic_num = 1
 
 for i in range(0,pic_num):
     pic = data_list[i]
@@ -40,8 +40,8 @@ for pic in array_list:
     pic_list.append(transpose_im)
 
 
-epoch = 100
-batch_size = 300
+epoch = 1
+batch_size = 3
 n_batch = int(math.ceil(len(pic_list) / batch_size))
 
 
@@ -75,10 +75,11 @@ for iter in range(0, epoch):
                 data_array_list.append(data_array[1:,:,:] / 128)
         model.train_backward(data_array_list)
 
-for i in range(0, 100):
+for i in range(0, 1):
     test_pic = pic_list[np.random.randint(0,len(pic_list))]
     # test_pic = pic_list[0]
     predict_output =  model.output(test_pic[:1,:,:]) * 128
+    print(predict_output)
     output = np.zeros(test_pic.shape)
     output[:1,:,:] = test_pic[:1,:,:]
     output[1:,:,:] = predict_output
@@ -93,6 +94,10 @@ for i in range(0, 100):
     pic_new = Image.fromarray(np.uint8(output_rgb))
 
     pic_old.save('./output/old'+str(i)+'.jpg')
-    pic_old.save('./output/new'+str(i)+'.jpg')
+    pic_new.save('./output/new'+str(i)+'.jpg')
 
-
+model.save()
+model.load()
+test_pic = pic_list[np.random.randint(0,len(pic_list))]
+predict_output =  model.output(test_pic[:1,:,:]) * 128
+print(predict_output)
