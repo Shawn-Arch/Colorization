@@ -1,5 +1,6 @@
 from Conv import *
 
+# Pooling layer
 class MaxPoolingLayer(object):
     def __init__(self, input_width, input_height, channel_number, filter_width, filter_height, zero_padding, stride):
         self.input_width = input_width
@@ -27,9 +28,9 @@ class MaxPoolingLayer(object):
                 for j in range(self.output_width):
                     patch_array = get_patch(input_array[d], i, j, self.filter_width, self.filter_height, self.stride)
                     max_value, max_i, max_j = patch_array[0,0], 0, 0
-                    for i in range(patch_array.shape[0]):
-                        for j in range(patch_array.shape[1]):
-                            if max_value < patch_array[i,j]:
-                                max_value = patch_array[i,j]
-                                max_i, max_j= i, j
+                    for h in range(patch_array.shape[0]):
+                        for w in range(patch_array.shape[1]):
+                            if max_value < patch_array[h,w]:
+                                max_value = patch_array[h,w]
+                                max_i, max_j= h, w
                     self.delta_array[d, i * self.stride + max_i, j * self.stride + max_j] = sensitivity_array[d,i,j]

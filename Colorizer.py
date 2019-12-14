@@ -3,12 +3,12 @@ from skimage import color
 import numpy as np
 import math
 from CNN import CNN
-# from CNN1 import CNN1
-# import glob as gb
+from CNN1 import CNN1
+import glob as gb
 
-# img_path = gb.glob("./train_data/*.jpg")
-img_path = ['1.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '6.jpeg']
-# img_path = ['1.jpeg']
+# img_path = gb.glob("./train_data_dog/*.jpg")
+# img_path = ['1.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '6.jpeg']
+img_path = ['./train_data_dog/6.jpg']
 pic_list = []
 for path in img_path:
     im = Image.open(path)
@@ -21,8 +21,8 @@ for path in img_path:
     pic_list.append(transpose_im)
 
 
-epoch = 20
-batch_size = 2
+epoch = 2000
+batch_size = 1
 n_batch = int(math.ceil(len(pic_list) / batch_size))
 
 
@@ -36,12 +36,16 @@ def Mse(actual_output_list, predict_output_list):
         #     i[...] = pow(i, 2)
         average_delta_array += delta_array * 2
     average_delta_array = average_delta_array / len(actual_output_list)
+    a = np.array(average_delta_array)
+    for i in np.nditer(a, op_flags=['readwrite']):
+        i[...] = abs(i) / 2
+    print('loss: '+str(a.sum()))
     return average_delta_array
 
 
 
 
-model = CNN(32, 32, 1, 0.0001, Mse)
+model = CNN1(32, 32, 1, 0.0002, Mse)
 
 for iter in range(0, epoch):
     print('epoch '+str(iter)+'----------------------')
@@ -56,23 +60,27 @@ for iter in range(0, epoch):
                 else:
                     model.train_forward(data_array[:1,:,:], 0)
                 data_array_list.append(data_array[1:,:,:] / 128)
+        print(model.conv12.output_array)
         model.train_backward(data_array_list)
 
-# test_pic = pic_list[np.random.randint(0,len(pic_list))]
-test_pic = pic_list[0]
-predict_output =  model.output(test_pic[:1,:,:]) * 128
-output = np.zeros(test_pic.shape)
-output[:1,:,:] = test_pic[:1,:,:]
-output[1:,:,:] = predict_output
+for i in range(0, len(pic_list)):
+    test_pic = pic_list[i]
+    # test_pic = pic_list[0]
+    predict_output =  model.output(test_pic[:1,:,:]) * 128
+    output = np.zeros(test_pic.shape)
+    output[:1,:,:] = test_pic[:1,:,:]
+    output[1:,:,:] = predict_output
 
-test_pic = test_pic.swapaxes(0,1).swapaxes(1,2)
-output = output.swapaxes(0,1).swapaxes(1,2)
+    test_pic = test_pic.swapaxes(0,1).swapaxes(1,2)
+    output = output.swapaxes(0,1).swapaxes(1,2)
 
-test_pic_rgb = color.lab2rgb(test_pic) * 255
-output_rgb = color.lab2rgb(output) * 255
+    test_pic_rgb = color.lab2rgb(test_pic) * 255
+    output_rgb = color.lab2rgb(output) * 255
 
-pic_old = Image.fromarray(np.uint8(test_pic_rgb))
-pic_new = Image.fromarray(np.uint8(output_rgb))
+    pic_old = Image.fromarray(np.uint8(test_pic_rgb))
+    pic_new = Image.fromarray(np.uint8(output_rgb))
 
-pic_old.save('old_1.jpg')
-pic_new.save('new_1.jpg')
+    pic_old.save('./output/old'+str(i)+'.jpg')
+    pic_new.save('./output/new'+str(i)+'.jpg')
+
+model.save('./filter.txt')

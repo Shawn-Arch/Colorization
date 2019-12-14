@@ -12,10 +12,10 @@ class NoneActivator(object):
 class ReluActivator(object):
     def forward(self, weighted_input):
         #return weighted_input
-        return weighted_input if weighted_input > 0 else weighted_input * 0.25
+        return weighted_input if weighted_input > 0 else weighted_input * 0.01
 
     def backward(self, output):
-        return 1 if output > 0 else 0.25
+        return 1 if output > 0 else 0.01
 
 
 class IdentityActivator(object):
