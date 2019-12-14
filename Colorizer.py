@@ -3,12 +3,9 @@ from skimage import color
 import numpy as np
 import math
 from CNN import CNN
-from CNN1 import CNN1
 import glob as gb
 
-# img_path = gb.glob("./train_data_dog/*.jpg")
-# img_path = ['1.jpeg', '3.jpeg', '4.jpeg', '5.jpeg', '6.jpeg']
-img_path = ['./train_data_dog/6.jpg']
+img_path = gb.glob("./train_data_dog/*.jpg")
 pic_list = []
 for path in img_path:
     im = Image.open(path)
@@ -22,7 +19,7 @@ for path in img_path:
 
 
 epoch = 2000
-batch_size = 1
+batch_size = 3
 n_batch = int(math.ceil(len(pic_list) / batch_size))
 
 
@@ -30,10 +27,7 @@ n_batch = int(math.ceil(len(pic_list) / batch_size))
 def Mse(actual_output_list, predict_output_list):
     average_delta_array = np.zeros(actual_output_list[0].shape)
     for i in range(0, len(actual_output_list)):
-        # delta_array = actual_output_list[i] - predict_output_list[i]
         delta_array = predict_output_list[i] - actual_output_list[i]
-        # for i in np.nditer(delta_array, op_flags=['readwrite']):
-        #     i[...] = pow(i, 2)
         average_delta_array += delta_array * 2
     average_delta_array = average_delta_array / len(actual_output_list)
     a = np.array(average_delta_array)
@@ -45,7 +39,7 @@ def Mse(actual_output_list, predict_output_list):
 
 
 
-model = CNN1(32, 32, 1, 0.0002, Mse)
+model = CNN(32, 32, 1, 0.0002, Mse)
 
 for iter in range(0, epoch):
     print('epoch '+str(iter)+'----------------------')
@@ -65,7 +59,6 @@ for iter in range(0, epoch):
 
 for i in range(0, len(pic_list)):
     test_pic = pic_list[i]
-    # test_pic = pic_list[0]
     predict_output =  model.output(test_pic[:1,:,:]) * 128
     output = np.zeros(test_pic.shape)
     output[:1,:,:] = test_pic[:1,:,:]
@@ -83,4 +76,4 @@ for i in range(0, len(pic_list)):
     pic_old.save('./output/old'+str(i)+'.jpg')
     pic_new.save('./output/new'+str(i)+'.jpg')
 
-model.save('./filter.txt')
+model.save('./filters.txt')

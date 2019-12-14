@@ -1,5 +1,6 @@
 *.idea
 *.DS_Store
 *__pycache__
-*.jpeg
-*.jpg
+*.txt
+cifar-10-batches-py
+output
